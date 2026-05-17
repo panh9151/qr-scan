@@ -66,35 +66,47 @@ function App() {
   };
 
   const handleExportExcel = () => {
-    const exportData = rows.map((row) => ({
-      "Mã liệu": row.materialCode,
-      "Mã NCC": row.vendorCode,
-      "Lot no": row.lotNo,
-      Quantity: row.quantity,
-      "Reel ID": row.reelId,
-      "Vị trí": row.location,
-      "QR Code": row.qrCode,
-      Done: row.done,
-    }));
+  const exportData = rows.map((row) => ({
+    "Mã liệu": row.materialCode,
+    "Mã NCC": row.vendorCode,
+    "Lot no": row.lotNo,
+    Quantity: row.quantity,
+    "Reel ID": row.reelId,
+    "Vị trí": row.location,
 
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    // hide QR code
+    // "QR Code": row.qrCode,
 
-    const workbook = XLSX.utils.book_new();
+    // export checkbox-like value
+    Done: row.done ? "TRUE" : "FALSE",
+  }));
 
-    XLSX.utils.book_append_sheet(workbook, worksheet, "QR Data");
+  const worksheet =
+    XLSX.utils.json_to_sheet(exportData);
 
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
+  const workbook = XLSX.utils.book_new();
 
-    const data = new Blob([excelBuffer], {
-      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
-    });
+  XLSX.utils.book_append_sheet(
+    workbook,
+    worksheet,
+    "QR Data"
+  );
 
-    saveAs(data, `qr-data-${Date.now()}.xlsx`);
-  };
+  const excelBuffer = XLSX.write(workbook, {
+    bookType: "xlsx",
+    type: "array",
+  });
 
+  const data = new Blob([excelBuffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+  });
+
+  // fixed filename
+  saveAs(
+    data,
+    "storage-management.xlsx"
+  );
+};
   const handleImportExcel = (event) => {
     const file = event.target.files[0];
 
@@ -123,6 +135,7 @@ function App() {
       }));
 
       setRows(formattedData);
+      setViewMode("table")
     };
 
     reader.readAsArrayBuffer(file);
